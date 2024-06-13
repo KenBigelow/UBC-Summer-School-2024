@@ -1,2 +1,2 @@
-BCNET 2024 Spack Container Workshop
+UBC Summer School 2024
 =======================================
