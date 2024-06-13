@@ -13,4 +13,4 @@ Welcome to the UBC Summer School Container Workshop
    :hidden:
    :caption: Apptainer Advanced Topics: Afternoon Session
 
-   /ApptainerSummerSchool
+   /ApptainerSummerSchool_Part2
