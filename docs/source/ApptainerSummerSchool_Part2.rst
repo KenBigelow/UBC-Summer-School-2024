@@ -61,16 +61,55 @@ Our demonstration cluster has a basic MPI framework installed so we will not be 
   mpiexec apptainer exec my_container.sif mpi-software --option 1 --setting 2 --input datafile.in
 
 
+
+Building and Running MPI Containers
+------------------------------------
+
+Software within a container that wishes to interact with MPI will need to be compiled against a matching MPI architecture (eg. OpenMPI or MPICH). In the example we will be exploring today a container has already been placed within the shared storage that was built with OpenMPI bindings. For further reading on how the container is built from a definition file please see: https://apptainer.org/docs/user/1.0/mpi.html#open-mpi-hybrid-container
+
+In the project directory there is a SLURM job script that utilizes the container and executes a basic 'Hello World' program across multiple nodes. Copying this file to your home directory and submitting it will run the software and produce an output file with the list of each node name and rank on that node.
+
+.. code-block:: console
+
+  #!/bin/bash
+  #SBATCH --job-name apptainer-mpi
+  #SBATCH --nodes=2 # total number of nodes
+  #SBATCH --tasks-per-node=3
+  #SBATCH --account=
+  #SBATCH --time=00:05:00 # Max execution time
+
+  module load gcc openmpi apptainer 
+  mpirun apptainer exec /project/mpi_test.sif /opt/mpitest
+
+
 GPU usage with Containers
 ===========================
 
 GPUs have become an increasingly powerful and common tool to use with research computing. AI and machine learning software are extremely common users of GPUs but other software is beginning to make use of the accelerated capabilities of GPU processing power as well. Containers can also interface with GPUs for their software as well.
 
-Although we did not have an example to show building a GPU container they can be built much the same as above. Depending on the type of GPU you are utilizing you will need to include the CUDA or ROCm libraries in the container for your software to function as well as make an additional flag during the `apptainer exec` or `apptainer shell` commands to import the GPU devices into the container. These can be activated by using the `--nv` or `--rocm` flags respectively depending on the GPU hardware type.
+Although we did not have the time to show building a GPU container they can be built much the same as before. Depending on the type of GPU you are utilizing you will need to include the CUDA or ROCm libraries in the container for your software to function as well as make an additional flag during the `apptainer exec` or `apptainer shell` commands to import the GPU devices into the container. These can be activated by using the `--nv` or `--rocm` flags respectively depending on the GPU hardware type.
+
+For our example we will use the latest tensorflow in a container and list all local GPUs. Downloading this container will take a large amount of time so to expedite the example we have already downloaded the container into the course project directory:
 
 .. code-block:: console
+  
+  cp /project/tensorflow_list.py .
+  cp /project/gpucontainer_job.sh .
+  sbatch gpucontainer_job.sh
 
-  apptainer exec --nv my_container.sif python3 my_pytorch.py
+This will launch the job with the following job script:
+  
+.. code-block:: console
+
+  #!/bin/bash
+  #SBATCH --job-name apptainer-mpi
+  #SBATCH --nodes=2 # total number of nodes
+  #SBATCH --tasks-per-node=3
+  #SBATCH --account=
+  #SBATCH --time=00:05:00 # Max execution time
+  
+  module load gcc apptainer
+  apptainer exec --nv /project/tensorflow-latest-gpu.sif python3 tensorflow_list.py
   
   
 Multi-stage Builds
