@@ -15,21 +15,21 @@ For our example we will build a container using the 'pandas_environment.txt' fil
 
 To start off we want to work with a container that has the conda software already installed. To do this, rather than starting from a blank Ubuntu image we can actually use a prebuilt image that has miniconda3 already set up.
 
-.. code-block:: console
+.. code-block:: singularity
 
   Bootstrap: docker
   From: continuumio/miniconda3
 
 We next want to bring in our environment file so it is avaiable during the build process so it can be used as a lookup for what packages conda will look to install. The %files tag will copy in any file specified from the local system into the build process so that it can be added to a final image. This is a good way to import source code for self-compiled research work as well.
 
-.. code-block:: console
+.. code-block:: singularity
 
   %files
       pandas_environment.txt
 
 Finally we will want to set up the environment and call the actual build process for the conda installer. Our %environment information is used to ensure that when we launch the container after it is built we have the virtual environement inside already loaded and ready to make python calls against. This requires a bit of extra setup in our %post section to ensure that it is easy for conda to activate the new environment we created.
 
-.. code-block:: console
+.. code-block:: singularity
 
   %environment
       source /opt/etc/bashrc
@@ -56,7 +56,7 @@ Ideally when constructing your container the type of MPI software in the contain
 
 Our demonstration cluster has a basic MPI framework installed so we will not be able to test a container with MPI capabilities but we will cover some of the usage basics.
 
-.. code-block:: console
+.. code-block:: bash
 
   mpiexec apptainer exec my_container.sif mpi-software --option 1 --setting 2 --input datafile.in
 
@@ -69,13 +69,13 @@ Software within a container that wishes to interact with MPI will need to be com
 
 In the project directory there is a SLURM job script that utilizes the container and executes a basic 'Hello World' program across multiple nodes. Copying this file to your home directory and submitting it will run the software and produce an output file with the list of each node name and rank on that node.
 
-.. code-block:: console
+.. code-block:: slurm
 
   #!/bin/bash
   #SBATCH --job-name apptainer-mpi
   #SBATCH --nodes=2 # total number of nodes
   #SBATCH --tasks-per-node=3
-  #SBATCH --account=
+  #SBATCH --account=def-sponsor00
   #SBATCH --time=00:05:00 # Max execution time
 
   module load gcc openmpi apptainer 
@@ -91,7 +91,7 @@ Although we did not have the time to show building a GPU container they can be b
 
 For our example we will use the latest tensorflow in a container and list all local GPUs. Downloading this container will take a large amount of time so to expedite the example we have already downloaded the container into the course project directory:
 
-.. code-block:: console
+.. code-block:: bash
   
   cp /project/tensorflow_list.py .
   cp /project/gpucontainer_job.sh .
@@ -99,13 +99,13 @@ For our example we will use the latest tensorflow in a container and list all lo
 
 This will launch the job with the following job script:
   
-.. code-block:: console
+.. code-block:: slurm
 
   #!/bin/bash
   #SBATCH --job-name apptainer-mpi
   #SBATCH --nodes=2 # total number of nodes
   #SBATCH --tasks-per-node=3
-  #SBATCH --account=
+  #SBATCH --account=def-sponsor00
   #SBATCH --time=00:05:00 # Max execution time
   
   module load gcc apptainer
@@ -119,11 +119,11 @@ To reduce sizes of the final containers and break builds up into multiple layers
 
 In the header for a container there is the option to provide the `Stage:` tag to define and break up a single container build into multiple sections of building. This creates a layered approach where early stages can be used to build software dependencies that need substantial additional packages that are not needed in the final output image.
 
-.. code-block:: console
+.. code-block:: singularity
 
   Bootstrap: docker
   From: continuumio/miniconda3
-  Stage: 
+  Stage: build_stage
   
   
 Hardware Architecture Caveats
