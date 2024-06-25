@@ -1,4 +1,3 @@
-======================================================================
 Welcome to the UBC ARC 2024 Summer School Container Workshop: Part 1
 ======================================================================
 
@@ -14,6 +13,7 @@ Containerized software is becoming more prevelant throughout the computing lands
 A container functions as effectively an isolated operating system on a node while it is running. Commands and software executed within the container will therefore run using this isolated system. This has many, many applications but for today we will explore how this can be applied to research workloads.
 
 Two common frameworks for containers in research computing are:
+
 * Docker
 * Apptainer/Singularity
 
@@ -45,7 +45,7 @@ To start off we will run the following command:
 
 .. code-block:: bash
 
-  source spack/share/spack/setup-env.sh
+  module load gcc apptainer
   apptainer pull docker://rockylinux/rockylinux:9
 
 This will download a basic container that runs on Rocky Linux 9 rather than Ubuntu that your VM is running.
@@ -81,9 +81,9 @@ First we set up the environment for spack and create a new spack.yaml file to re
 
 .. code-block:: bash
 
-  mkdir apptainer
-  cd apptainer
-  . spack/share/spack/setup-env.sh 
+  mkdir apptainer-ffmpeg
+  cd apptainer-ffmpeg
+  . /project/spack/share/spack/setup-env.sh 
   nano spack.yaml
 
 Inserting this code into the spack.yaml file will tell Spack we want 
@@ -100,7 +100,7 @@ Now that we have the packages all loaded we start up apptainer and run the conta
 
 .. code-block:: bash
 
-  spack load apptainer
+  module load gcc apptainer
   spack containerize > spack-user-ffmpeg.def
   apptainer build spack-user-ffmpeg.sif spack-user-ffmpeg.def
 
