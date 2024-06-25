@@ -43,7 +43,7 @@ Sometimes everything you already need is available in a container online. This c
 
 To start off we will run the following command:
 
-.. code-block:: console
+.. code-block:: bash
 
   source spack/share/spack/setup-env.sh
   apptainer pull docker://rockylinux/rockylinux:9
@@ -52,13 +52,13 @@ This will download a basic container that runs on Rocky Linux 9 rather than Ubun
 
 Once the container is finished downloading we will look at the differences between the two containers. Before starting the container run the command
 
-.. code-block:: console
+.. code-block:: bash
 
   tar --version
 
 Now lets start a session within the container and run the command again:
 
-.. code-block:: console
+.. code-block:: bash
 
   apptainer shell rockylinux_9.sif
   tar --version
@@ -67,7 +67,7 @@ Note that the container has a different version of tar than the main operating s
 
 Additionally commands to containers can be passed non-interactively. For HPC systems, when submitting jobs this will be the main method of calling containers within job scripts:
 
-.. code-block:: console
+.. code-block:: bash
 
   apptainer exec rockylinux_9.sif tar --version
 
@@ -79,16 +79,16 @@ Using Spack we can simplify the build process of environments for containers sub
 
 First we set up the environment for spack and create a new spack.yaml file to read from
 
-.. code-block:: console
+.. code-block:: bash
 
-  $ mkdir apptainer
-  $ cd apptainer
-  $ . spack/share/spack/setup-env.sh 
-  $ nano spack.yaml
+  mkdir apptainer
+  cd apptainer
+  . spack/share/spack/setup-env.sh 
+  nano spack.yaml
 
 Inserting this code into the spack.yaml file will tell Spack we want 
 
-.. code-block:: console
+.. code-block:: yaml
   
   spack:
    specs:
@@ -98,20 +98,20 @@ Inserting this code into the spack.yaml file will tell Spack we want
 
 Now that we have the packages all loaded we start up apptainer and run the containerize function to make a build definitions file
 
-.. code-block:: console
+.. code-block:: bash
 
-  $ spack load apptainer
-  $ spack containerize > spack-user-ffmpeg.def
-  $ apptainer build spack-user-ffmpeg.sif spack-user-ffmpeg.def
+  spack load apptainer
+  spack containerize > spack-user-ffmpeg.def
+  apptainer build spack-user-ffmpeg.sif spack-user-ffmpeg.def
 
 Spack will then build from source everything needed for the container and package it within the output .sif file.
 
 Using Apptainer Containers
 -----------------------------
 
-.. code-block:: console
+.. code-block:: bash
 
-  $ apptainer exec --fakeroot spack-user-ffmpeg.sif ffmpeg -h
+  apptainer exec --fakeroot spack-user-ffmpeg.sif ffmpeg -h
 
 Here we see that the ffmpeg package is installed and ready for use within the container we built.
 
@@ -126,7 +126,7 @@ Apptainer Image Header
 
 Every build file starts with a base image and a location to pull the image from. In our case lets look at a basic Ubuntu image as the starting point
 
-.. code-block:: console
+.. code-block:: singularity
 
   Bootstrap: docker
   From: ubuntu:22.04
@@ -135,7 +135,7 @@ This tells us we want a container from DockerHub from Ubuntu with the release 22
 
 Next we will define our environment variables that will be set up each time the container launches. This is very useful if you have a complex install path and would like it to be set up for easy execution from the command line.
 
-.. code-block:: console
+.. code-block:: singularity
 
   %environment
   export PATH=/opt/new_software/bin:${PATH}
@@ -143,7 +143,7 @@ Next we will define our environment variables that will be set up each time the 
 
 Finally we have the main block for the build file: 'post'. This block defines all of the commands we want to run to build up the environment and install software. Here we can place commands to set up our software in `/opt/new_software/bin` and ensure it is ready to go when the container finishes building.
 
-.. code-block:: console
+.. code-block:: singularity
 
   %post
   apt-get update && apt-get install -y --no-install-recommends  wget tar zip man git gcc
@@ -154,13 +154,13 @@ Finally we have the main block for the build file: 'post'. This block defines al
 
 This puts a simple bash script into our path. Now lets finish off and build the container to see how it executes. Please use whatever you named the build file in place of 'my_container.def'
 
-.. code-block:: console
+.. code-block:: bash
 
   apptainer build my_container.sif  my_container.def
 
 Now finally we can execute the container built and see the colored output from the script we added.
 
-.. code-block:: console
+.. code-block:: bash
 
   apptainer exec my_container.sif color.sh
   
@@ -169,13 +169,13 @@ Sandboxing and 'Editing' Containers
 
 In some cases you may want to test changes to a container or work on developing a container on the fly without having to rebuild the container each time you make changes. An option is available in Apptainer to create a sandbox of an existing containter. Rather than a compact .sif file sandboxing creates a set of directories that work as a container environment. This allows writing and making changes to the environment for testing.
 
-.. code-block:: console
+.. code-block:: bash
 
   apptainer build --sandbox my_container/ my_container.sif
 
 This will build our previous container into a sandbox directory called 'my_container'. We can connect to the sandbox directory and run commands to edit the environment with:
 
-.. code-block:: console
+.. code-block:: bash
 
   apptainer shell --writable my_container/
   
@@ -183,7 +183,7 @@ Any changes made in this shell to the environment, such as installing packages, 
 
 It is possible to convert a sandbox back into a .sif file, but do note that in doing so there is no record of what changes were made to the .sif. For reproducibility it its far better to add the changes made to a .def file as a record. To convert back from a writable container into a .sif you may use:
 
-.. code-block:: console
+.. code-block:: bash
 
   apptainer build my_edited_container.sif my_container/
 
