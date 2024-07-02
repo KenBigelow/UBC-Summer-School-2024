@@ -4,6 +4,13 @@ Welcome to the UBC Summer School Container Workshop
 .. toctree::
    :maxdepth: 2
    :hidden:
+   :caption: Land Acknowledgement and Housekeeping
+
+   /Housekeeping
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
    :caption: Containers: Morning Session
 
    /ApptainerSummerSchool
