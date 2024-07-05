@@ -104,7 +104,7 @@ Now that we have the packages all loaded we start up apptainer and run the conta
 
   module load gcc apptainer
   spack containerize > spack-user-ffmpeg.def
-  apptainer build spack-user-ffmpeg.sif spack-user-ffmpeg.def
+  APPTAINER_BIND= apptainer build spack-user-ffmpeg.sif spack-user-ffmpeg.def
 
 Spack will then build from source everything needed for the container and package it within the output .sif file.
 
@@ -158,7 +158,7 @@ This puts a simple bash script into our path. Now lets finish off and build the 
 
 .. code-block:: bash
 
-  apptainer build my_container.sif  my_container.def
+  APPTAINER_BIND= apptainer build my_container.sif  my_container.def
 
 Now finally we can execute the container built and see the colored output from the script we added.
 
@@ -173,7 +173,7 @@ In some cases you may want to test changes to a container or work on developing 
 
 .. code-block:: bash
 
-  apptainer build --sandbox my_container/ my_container.sif
+  APPTAINER_BIND= apptainer build --sandbox my_container/ my_container.sif
 
 This will build our previous container into a sandbox directory called 'my_container'. We can connect to the sandbox directory and run commands to edit the environment with:
 
@@ -187,6 +187,6 @@ It is possible to convert a sandbox back into a .sif file, but do note that in d
 
 .. code-block:: bash
 
-  apptainer build my_edited_container.sif my_container/
+  APPTAINER_BIND= apptainer build my_edited_container.sif my_container/
 
 
