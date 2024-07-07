@@ -25,7 +25,7 @@ We next want to bring in our environment file so it is avaiable during the build
 .. code-block:: singularity
 
   %files
-      pandas_environment.txt
+      /project/pandas_environment.txt
 
 Finally we will want to set up the environment and call the actual build process for the conda installer. Our %environment information is used to ensure that when we launch the container after it is built we have the virtual environement inside already loaded and ready to make python calls against. This requires a bit of extra setup in our %post section to ensure that it is easy for conda to activate the new environment we created.
 
@@ -37,14 +37,24 @@ Finally we will want to set up the environment and call the actual build process
 
   %post
       /opt/conda/bin/conda config --env --add channels conda-forge
-      /opt/conda/bin/conda env create -n singularityenv --file pandas_environment.txt
+      /opt/conda/bin/conda env create -n singularityenv --file /project/pandas_environment.txt
       conda init bash
       mkdir -p /opt/etc
       cp ~/.bashrc /opt/etc/bashrc
 
 Putting this all together into a def file we can once again call `apptainer build` to construct a new .sif file. Once it is finished we can use `apptainer shell` or `apptainer exec` to make python calls using the containers installation of python and Pandas
 
+.. code-block:: bash
 
+  APPTAINER_BIND= apptainer build conda_build.sif conda_build.def
+  apptainer shell conda_build.sif
+  (singularityenv) python3
+  Python 3.12.2 | packaged by conda-forge | (main, Feb 16 2024, 20:50:58) [GCC 12.3.0] on linux
+  Type "help", "copyright", "credits" or "license" for more information.
+  >>> import pandas
+  >>> pandas.__version__
+  '2.2.1'
+  
 
 
 MPI Workloads and Containers
@@ -54,7 +64,7 @@ MPI is a common interface for high performance computing allowing software to ma
 
 Ideally when constructing your container the type of MPI software in the container should be similar or identical to the one used on the HPC system for best performance. In many cases it is worthwhile to reach out to the system administration team of the HPC system or review their documentation on how best to use containers with MPI on their system.
 
-Our demonstration cluster has a basic MPI framework installed so we will not be able to test a container with MPI capabilities but we will cover some of the usage basics.
+Our demonstration cluster has a basic MPI framework installed so we will build a simple Hello World style container. Below is an example call to a container:
 
 .. code-block:: bash
 
